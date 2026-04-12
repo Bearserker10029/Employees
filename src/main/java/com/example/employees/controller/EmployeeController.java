@@ -6,12 +6,14 @@ import com.example.employees.model.Jobs;
 import com.example.employees.repository.DepartmentsRepository;
 import com.example.employees.repository.EmployeesRepository;
 import com.example.employees.repository.JobsRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Optional;
@@ -64,33 +66,33 @@ public class EmployeeController {
                                        @RequestParam(required = false) Double salary,
                                        @RequestParam(required = false) String jobId,
                                        @RequestParam(required = false) Integer managerId,
-                                       @RequestParam(required = false) Integer departmentId) {
+                                       @RequestParam(required = false) Integer departmentId, RedirectAttributes redirectAttributes) {
 
         Employees employee = new Employees();
-        
-        if (employeeId != null && employeeId > 0) {
+
+        if (employeeId != null) {
             employee = employeesRepository.findById(employeeId).orElse(new Employees());
         }
-        
+
         employee.setFirstName(firstName);
         employee.setLastName(lastName);
         employee.setEmail(email);
         employee.setPassword(password);
         employee.setSalary(salary);
-        
+
         if (jobId != null && !jobId.isEmpty()) {
             Jobs job = new Jobs();
             job.setJobId(jobId);
             employee.setJobId(job);
         }
-        
-        if (managerId != null && managerId > 0) {
+
+        if (managerId != null) {
             Employees manager = new Employees();
             manager.setEmployeeId(managerId);
             employee.setManagerId(manager);
         }
         
-        if (departmentId != null && departmentId > 0) {
+        if (departmentId != null) {
             Departments dept = new Departments();
             dept.setDepartmentId(departmentId);
             employee.setDepartmentId(dept);
@@ -101,11 +103,12 @@ public class EmployeeController {
         }
         
         employeesRepository.save(employee);
+        redirectAttributes.addFlashAttribute("msg","Empleado guardado correctamente");
         return "redirect:/employee/list";
     }
 
     @GetMapping("/edit")
-    public String editarEmpleado(Model model, @RequestParam("id") int id) {
+    public String editarEmpleado(Model model, @RequestParam("id") int id,  RedirectAttributes redirectAttributes) {
 
         Optional<Employees> optEmployee = employeesRepository.findByIdWithRelations(id);
 
@@ -115,6 +118,7 @@ public class EmployeeController {
             model.addAttribute("jobs", jobsRepository.findAll());
             model.addAttribute("managers", employeesRepository.findAll());
             model.addAttribute("departments", departmentsRepository.findAll());
+            redirectAttributes.addFlashAttribute("msg","Empleado actualizado correctamente");
             return "Employee/EditEmployee";
         } else {
             return "redirect:/employee/list";
@@ -122,12 +126,17 @@ public class EmployeeController {
     }
 
     @GetMapping("/delete")
-    public String borrarEmpleado(@RequestParam("id") int id) {
+    public String borrarEmpleado(@RequestParam("id") int id,  RedirectAttributes redirectAttributes) {
 
         Optional<Employees> optEmployee = employeesRepository.findById(id);
 
         if (optEmployee.isPresent()) {
-            employeesRepository.deleteById(id);
+            try {
+                employeesRepository.deleteById(id);
+                redirectAttributes.addFlashAttribute("msg", "Empleado borrado correctamente");
+            } catch (DataIntegrityViolationException ex) {
+                redirectAttributes.addFlashAttribute("msg", "No se puede eliminar al empleado");
+            }
         }
         return "redirect:/employee/list";
 

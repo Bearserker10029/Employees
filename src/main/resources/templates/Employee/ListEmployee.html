@@ -38,7 +38,7 @@
 
             <a class="btn btn-primary mb-4" th:href="@{/employee/new}">Nuevo Empleado</a>
             <a class="btn btn-outline-secondary mb-4" th:href="@{/employee/list}">Limpiar</a>
-
+            <div th:if="${msg!= null}" th:text="${msg}" class="alert alert-success" role="alert"></div>
             <table class="table table-sm table-striped align-middle">
                 <thead>
                     <tr>
