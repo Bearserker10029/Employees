@@ -1,4 +1,4 @@
 package com.example.employees.repository;
 
-public interface LocationsRepository {
+public interface LocationsRepository extends JpaRepository<Locations, Integer> {
 }
