@@ -13,18 +13,20 @@
     <main>
         <div class="container px-4 py-5">
             <h1 class="pb-2 mb-4 border-bottom">Nuevo Empleado</h1>
-            <form method="post" th:action="@{/employee/save}" class="col-6">
+            <form method="post" th:action="@{/employee/save}" th:object="${employee}" class="col-6">
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="firstName" class="form-label">Nombre</label>
-                            <input name="firstName" type="text" class="form-control" id="firstName">
+                            <input th:field="*{firstName}" type="text" class="form-control" id="firstName">
+                            <div class="text-danger" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="lastName" class="form-label">Apellido</label>
-                            <input name="lastName" type="text" class="form-control" id="lastName" required>
+                            <input th:field="*{lastName}" type="text" class="form-control" id="lastName" required>
+                            <div class="text-danger" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
                         </div>
                     </div>
                 </div>
@@ -33,13 +35,15 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="email" class="form-label">Correo Electrónico</label>
-                            <input name="email" type="email" class="form-control" id="email" required>
+                            <input th:field="*{email}" type="email" class="form-control" id="email" required>
+                            <div class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="password" class="form-label">Contraseña</label>
-                            <input name="password" type="password" class="form-control" id="password">
+                            <input th:field="*{password}" type="password" class="form-control" id="password">
+                            <div class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
                         </div>
                     </div>
                 </div>
@@ -48,7 +52,7 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="jobId" class="form-label">Puesto</label>
-                            <select name="jobId" class="form-control" id="jobId">
+                            <select class="form-control" id="jobId" name="jobId">
                                 <option value="">-- Seleccionar --</option>
                                 <option th:each="job : ${jobs}" th:value="${job.jobId}" th:text="${job.jobTitle}">
                                 </option>
@@ -58,13 +62,14 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="salary" class="form-label">Sueldo</label>
-                            <input name="salary" type="number" step="0.01" class="form-control" id="salary">
+                            <input th:field="*{salary}" type="number" step="0.01" class="form-control" id="salary">
+                            <div class="text-danger" th:if="${#fields.hasErrors('salary')}" th:errors="*{salary}"></div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="managerId" class="form-label">Jefe</label>
-                            <select name="managerId" class="form-control" id="managerId">
+                            <select class="form-control" id="managerId" name="managerId">
                                 <option value="">-- Seleccionar --</option>
                                 <option th:each="manager : ${managers}" th:value="${manager.employeeId}"
                                     th:text="${manager.firstName} + ' ' + ${manager.lastName}"></option>
@@ -74,7 +79,7 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="departmentId" class="form-label">Departamento</label>
-                            <select name="departmentId" class="form-control" id="departmentId">
+                            <select class="form-control" id="departmentId" name="departmentId">
                                 <option value="">-- Seleccionar --</option>
                                 <option th:each="dept : ${departments}" th:value="${dept.departmentId}"
                                         th:text="${dept.departmentName}"></option>

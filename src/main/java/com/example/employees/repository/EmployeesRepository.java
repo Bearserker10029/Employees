@@ -4,9 +4,11 @@ import com.example.employees.model.Employees;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+@Repository
 
 public interface EmployeesRepository extends JpaRepository<Employees,Integer> {
 
@@ -27,12 +29,12 @@ public interface EmployeesRepository extends JpaRepository<Employees,Integer> {
             left join fetch e.jobId j
             left join fetch e.departmentId d
             left join fetch d.locationId l
-            where
-                (lower(e.firstName) like lower(concat('%', :termino, '%')) or
-                 lower(e.lastName) like lower(concat('%', :termino, '%')) or
-                 lower(j.jobTitle) like lower(concat('%', :termino, '%')) or
-                 lower(d.departmentName) like lower(concat('%', :termino, '%')) or
-                 lower(l.city) like lower(concat('%', :termino, '%')))
+            where (:campo = 'all' or
+                   (:campo = 'firstName' and lower(e.firstName) like lower(concat('%', :termino, '%'))) or
+                   (:campo = 'lastName' and lower(e.lastName) like lower(concat('%', :termino, '%'))) or
+                   (:campo = 'jobTitle' and lower(j.jobTitle) like lower(concat('%', :termino, '%'))) or
+                   (:campo = 'departmentName' and lower(d.departmentName) like lower(concat('%', :termino, '%'))) or
+                   (:campo = 'city' and lower(l.city) like lower(concat('%', :termino, '%'))))
             order by e.employeeId
             """)
     List<Employees> searchEmployees(@Param("campo") String campo, @Param("termino") String termino);

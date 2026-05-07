@@ -10,6 +10,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,15 +33,19 @@ public class Employees {
     private int employeeId;
 
     @Column(name = "first_name")
+    @NotBlank(message = "El nombre no puede estar en blanco")
     private String firstName;
 
     @Column(name = "last_name", nullable = false)
+    @NotBlank(message = "El apellido no puede estar en blanco")
     private String lastName;
 
     @Column(nullable = false, unique = true)
+    @NotBlank(message = "El correo electrónico no puede estar en blanco")
     private String email;
 
-    @Column(name = "password")
+    @Column(name = "password", length = 255)
+    @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
     private String password;
 
     @Column(name = "salary")

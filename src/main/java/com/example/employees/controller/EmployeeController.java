@@ -6,10 +6,13 @@ import com.example.employees.model.Jobs;
 import com.example.employees.repository.DepartmentsRepository;
 import com.example.employees.repository.EmployeesRepository;
 import com.example.employees.repository.JobsRepository;
+import jakarta.validation.Valid;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -58,27 +61,47 @@ public class EmployeeController {
     }
 
     @PostMapping("/save")
-    public String guardarNuevoEmpleado(@RequestParam(required = false) Integer employeeId,
-                                       @RequestParam(required = false) String firstName,
-                                       @RequestParam(required = false) String lastName,
-                                       @RequestParam(required = false) String email,
-                                       @RequestParam(required = false) String password,
-                                       @RequestParam(required = false) Double salary,
+    public String guardarNuevoEmpleado(@ModelAttribute("employee") @Valid Employees employee,
+                                       BindingResult bindingResult,
                                        @RequestParam(required = false) String jobId,
                                        @RequestParam(required = false) Integer managerId,
-                                       @RequestParam(required = false) Integer departmentId, RedirectAttributes redirectAttributes) {
+                                       @RequestParam(required = false) Integer departmentId,
+                                       RedirectAttributes redirectAttributes, Model model) {
 
-        Employees employee = new Employees();
-
-        if (employeeId != null) {
-            employee = employeesRepository.findById(employeeId).orElse(new Employees());
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("jobs", jobsRepository.findAll());
+            model.addAttribute("managers", employeesRepository.findAll());
+            model.addAttribute("departments", departmentsRepository.findAll());
+            if (employee.getEmployeeId() > 0) {
+                return "Employee/EditEmployee";
+            }
+            return "Employee/NewEmployee";
         }
 
-        employee.setFirstName(firstName);
-        employee.setLastName(lastName);
-        employee.setEmail(email);
-        employee.setPassword(password);
-        employee.setSalary(salary);
+        if (employee.getSalary() != null && employee.getSalary() < 0) {
+            bindingResult.rejectValue("salary", "error.salary", "El sueldo no puede ser negativo");
+            model.addAttribute("jobs", jobsRepository.findAll());
+            model.addAttribute("managers", employeesRepository.findAll());
+            model.addAttribute("departments", departmentsRepository.findAll());
+            if (employee.getEmployeeId() > 0) {
+                return "Employee/EditEmployee";
+            }
+            return "Employee/NewEmployee";
+        }
+
+        Employees existingEmployee = null;
+        if (employee.getEmployeeId() > 0) {
+            existingEmployee = employeesRepository.findById(employee.getEmployeeId()).orElse(null);
+        }
+
+        if (existingEmployee != null) {
+            existingEmployee.setFirstName(employee.getFirstName());
+            existingEmployee.setLastName(employee.getLastName());
+            existingEmployee.setEmail(employee.getEmail());
+            existingEmployee.setPassword(employee.getPassword());
+            existingEmployee.setSalary(employee.getSalary());
+            employee = existingEmployee;
+        }
 
         if (jobId != null && !jobId.isEmpty()) {
             Jobs job = new Jobs();
@@ -91,19 +114,19 @@ public class EmployeeController {
             manager.setEmployeeId(managerId);
             employee.setManagerId(manager);
         }
-        
+
         if (departmentId != null) {
             Departments dept = new Departments();
             dept.setDepartmentId(departmentId);
             employee.setDepartmentId(dept);
         }
-        
+
         if (employee.getHireDate() == null) {
             employee.setHireDate(new java.util.Date());
         }
-        
+
         employeesRepository.save(employee);
-        redirectAttributes.addFlashAttribute("msg","Empleado guardado correctamente");
+        redirectAttributes.addFlashAttribute("msg", "Empleado guardado correctamente");
         return "redirect:/employee/list";
     }
 
