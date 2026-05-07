@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -130,8 +131,8 @@ public class EmployeeController {
         return "redirect:/employee/list";
     }
 
-    @GetMapping("/edit")
-    public String editarEmpleado(Model model, @RequestParam("id") int id,  RedirectAttributes redirectAttributes) {
+    @GetMapping("/edit/{id}")
+    public String editarEmpleado(Model model, @PathVariable int id,  RedirectAttributes redirectAttributes) {
 
         Optional<Employees> optEmployee = employeesRepository.findByIdWithRelations(id);
 
@@ -148,8 +149,8 @@ public class EmployeeController {
         }
     }
 
-    @GetMapping("/delete")
-    public String borrarEmpleado(@RequestParam("id") int id,  RedirectAttributes redirectAttributes) {
+    @GetMapping("/delete/{id}")
+    public String borrarEmpleado(@PathVariable int id,  RedirectAttributes redirectAttributes) {
 
         Optional<Employees> optEmployee = employeesRepository.findById(id);
 

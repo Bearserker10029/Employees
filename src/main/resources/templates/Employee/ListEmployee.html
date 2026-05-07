@@ -63,10 +63,10 @@
                             th:text="${employee.departmentId != null and employee.departmentId.locationId != null ? employee.departmentId.locationId.city : '-'}">
                         </td>
                         <td><a class="btn btn-primary"
-                                th:href="@{'/employee/edit?id=' + ${employee.employeeId}}">Editar</a>
+                                th:href="@{/employee/edit/{id}(id=${employee.employeeId})}">Editar</a>
                         </td>
                         <td><a class="btn btn-danger"
-                                th:href="@{'/employee/delete?id=' + ${employee.employeeId}}">Borrar</a>
+                                th:href="@{/employee/delete/{id}(id=${employee.employeeId})}">Borrar</a>
                         </td>
                     </tr>
                 </tbody>
